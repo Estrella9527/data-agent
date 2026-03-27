@@ -1,0 +1,71 @@
+services:
+  # ChromaDB Vector Store
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: zhongming-chromadb
+    volumes:
+      - chromadb_data:/chroma/chroma
+    environment:
+      - ANONYMIZED_TELEMETRY=false
+    networks:
+      - internal
+    restart: unless-stopped
+
+  # FastAPI Backend
+  agent-service:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: zhongming-api
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@host.docker.internal:5432/${POSTGRES_DB}
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - JWT_SECRET=${JWT_SECRET}
+      - LLM_API_KEY=${LLM_API_KEY:-}
+      - LLM_BASE_URL=${LLM_BASE_URL:-}
+      - LLM_MODEL=${LLM_MODEL:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - uploads_data:/app/uploads
+    ports:
+      - "127.0.0.1:8010:8000"
+    depends_on:
+      chromadb:
+        condition: service_started
+    networks:
+      - internal
+    restart: unless-stopped
+
+  # Next.js Frontend
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: zhongming-web
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@host.docker.internal:5432/${POSTGRES_DB}
+      - AGENT_SERVICE_URL=http://agent-service:8000
+      - NEXT_PUBLIC_AGENT_URL=
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      agent-service:
+        condition: service_started
+    networks:
+      - internal
+    restart: unless-stopped
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  chromadb_data:
+  uploads_data:
