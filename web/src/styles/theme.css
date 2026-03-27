@@ -1,0 +1,196 @@
+/**
+ * 重明 Data Agent — Craft Agents 6-Color System (exact copy)
+ *
+ * 6-Color System:
+ * - background: Light/dark surface
+ * - foreground: Text and icons
+ * - accent: Brand purple (highlights, Auto mode)
+ * - info: Amber (warnings, Ask mode)
+ * - success: Green (connected, checkmarks)
+ * - destructive: Red (errors, failed)
+ *
+ * Variants:
+ * - /50 = 50% alpha (transparency)
+ * - -50 = 50% mix toward background (solid)
+ */
+
+/* =============================================================================
+   LIGHT MODE (default)
+============================================================================= */
+
+:root {
+  /* === 6 BASE COLORS === */
+  --background: oklch(0.98 0.003 265);
+  --foreground: oklch(0.185 0.01 270);
+  --foreground-rgb: 38, 36, 42;
+  --accent: oklch(0.62 0.13 293);
+  --accent-rgb: 104, 78, 133;
+  --info: oklch(0.65 0.16 70);
+  --success: oklch(0.55 0.17 145);
+  --destructive: oklch(0.58 0.24 28);
+  --destructive-rgb: 180, 60, 50;
+  --info-rgb: 180, 120, 40;
+  --success-rgb: 34, 120, 60;
+
+  /* === TEXT VARIANTS (mixed toward foreground for better contrast) === */
+  --success-text: color-mix(in oklab, var(--success) 50%, var(--foreground));
+  --destructive-text: color-mix(in oklab, var(--destructive) 50%, var(--foreground));
+  --info-text: color-mix(in oklab, var(--info) 50%, var(--foreground));
+
+  /* === SHADOW OPACITY === */
+  --shadow-border-opacity: 0.08;
+  --shadow-blur-opacity: 0.06;
+
+  /* === SHADOW VALUES === */
+  --shadow-minimal:
+    rgba(0, 0, 0, 0) 0px 0px 0px 0px,
+    rgba(0, 0, 0, 0) 0px 0px 0px 0px,
+    rgba(var(--foreground-rgb), 0.06) 0px 0px 0px 1px,
+    rgba(0, 0, 0, var(--shadow-blur-opacity)) 0px 1px 1px -0.5px,
+    rgba(0, 0, 0, var(--shadow-blur-opacity)) 0px 3px 3px -1.5px;
+
+  --shadow-minimal-flat:
+    rgba(0, 0, 0, 0) 0px 0px 0px 0px,
+    rgba(0, 0, 0, 0) 0px 0px 0px 0px,
+    rgba(var(--foreground-rgb), 0.06) 0px 0px 0px 1px;
+
+  --shadow-modal-small:
+    rgba(0, 0, 0, 0) 0px 0px 0px 0px,
+    rgba(0, 0, 0, 0) 0px 0px 0px 0px,
+    rgba(var(--foreground-rgb), 0.06) 0px 0px 0px 1px,
+    rgba(0, 0, 0, calc(var(--shadow-blur-opacity) * 0.67)) 0px 1px 1px -0.5px,
+    rgba(0, 0, 0, calc(var(--shadow-blur-opacity) * 0.67)) 0px 3px 3px 0px,
+    rgba(0, 0, 0, calc(var(--shadow-blur-opacity) * 0.33)) 0px 6px 6px 0px,
+    rgba(0, 0, 0, calc(var(--shadow-blur-opacity) * 0.33)) 0px 12px 12px 0px,
+    rgba(0, 0, 0, calc(var(--shadow-blur-opacity) * 0.33)) 0px 24px 24px 0px;
+
+  /* === MIX VARIANTS (solid interpolation toward background) === */
+  --foreground-2: color-mix(in srgb, var(--foreground) 2%, var(--background));
+  --foreground-3: color-mix(in srgb, var(--foreground) 3%, var(--background));
+  --foreground-5: color-mix(in srgb, var(--foreground) 5%, var(--background));
+  --foreground-7: color-mix(in srgb, var(--foreground) 7%, var(--background));
+  --foreground-10: color-mix(in srgb, var(--foreground) 10%, var(--background));
+  --foreground-15: color-mix(in srgb, var(--foreground) 15%, var(--background));
+  --foreground-20: color-mix(in srgb, var(--foreground) 20%, var(--background));
+  --foreground-30: color-mix(in srgb, var(--foreground) 30%, var(--background));
+  --foreground-40: color-mix(in srgb, var(--foreground) 40%, var(--background));
+  --foreground-50: color-mix(in srgb, var(--foreground) 50%, var(--background));
+  --foreground-60: color-mix(in srgb, var(--foreground) 60%, var(--background));
+  --foreground-70: color-mix(in srgb, var(--foreground) 70%, var(--background));
+  --foreground-80: color-mix(in srgb, var(--foreground) 80%, var(--background));
+  --foreground-90: color-mix(in srgb, var(--foreground) 90%, var(--background));
+  --foreground-95: color-mix(in srgb, var(--foreground) 95%, var(--background));
+
+  /* === SHADCN COMPATIBILITY === */
+  --secondary: oklch(from var(--foreground) l c h / 0.05);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(from var(--foreground) l c h / 0.05);
+  --muted-foreground: var(--foreground-50);
+  --card: var(--background);
+  --card-foreground: var(--foreground);
+  --popover: var(--background);
+  --popover-foreground: var(--foreground);
+  --border: oklch(from var(--foreground) l c h / 0.05);
+  --input: oklch(from var(--foreground) l c h / 0.1);
+  --ring: oklch(from var(--foreground) l c h / 0.25);
+  --ring-width: 1px;
+  --ring-offset: 0px;
+
+  /* === COLOR VARIANTS (hover / subtle) === */
+  --accent-hover: color-mix(in srgb, var(--accent) 80%, var(--foreground));
+  --accent-subtle: color-mix(in srgb, var(--accent) 10%, var(--background));
+  --destructive-hover: color-mix(in srgb, var(--destructive) 80%, var(--foreground));
+  --destructive-subtle: color-mix(in srgb, var(--destructive) 10%, var(--background));
+  --info-subtle: color-mix(in srgb, var(--info) 10%, var(--background));
+  --success-subtle: color-mix(in srgb, var(--success) 10%, var(--background));
+
+  /* === COMPONENT TOKENS === */
+  --user-message-bubble: oklch(from var(--foreground) l c h / 0.05);
+  --accent-foreground: var(--background);
+  --destructive-foreground: var(--background);
+
+  /* === TYPOGRAPHY === */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --font-default: var(--font-sans);
+  --font-size-base: 15px;
+
+  /* === LAYOUT === */
+  --radius-outer: 14px;
+  --radius-inner: 10px;
+  --radius-pill: 9999px;
+  --panel-gap: 6px;
+  --panel-padding: 6px;
+
+  /* === ANIMATION === */
+  --spring-duration: 0.4s;
+  --spring-easing: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* === Z-INDEX === */
+  --z-base: 0;
+  --z-local: 10;
+  --z-sticky: 20;
+  --z-titlebar: 40;
+  --z-panel: 50;
+  --z-dropdown: 100;
+  --z-tooltip: 150;
+  --z-overlay: 200;
+  --z-modal: 300;
+}
+
+/* =============================================================================
+   DARK MODE
+============================================================================= */
+
+.dark {
+  --background: oklch(0.2 0.005 270);
+  --foreground: oklch(0.92 0.005 270);
+  --foreground-rgb: 227, 226, 229;
+  --accent: oklch(0.68 0.13 293);
+  --accent-rgb: 118, 92, 147;
+  --info: oklch(0.70 0.16 70);
+  --success: oklch(0.60 0.17 145);
+  --destructive: oklch(0.70 0.19 22);
+  --destructive-rgb: 200, 80, 70;
+  --info-rgb: 200, 140, 60;
+  --success-rgb: 50, 140, 80;
+
+  --success-text: color-mix(in oklab, var(--success) 50%, var(--foreground));
+  --destructive-text: color-mix(in oklab, var(--destructive) 50%, var(--foreground));
+  --info-text: color-mix(in oklab, var(--info) 50%, var(--foreground));
+
+  --shadow-border-opacity: 0.15;
+  --shadow-blur-opacity: 0.12;
+
+  --foreground-2: color-mix(in srgb, var(--foreground) 2%, var(--background));
+  --foreground-3: color-mix(in srgb, var(--foreground) 3%, var(--background));
+  --foreground-5: color-mix(in srgb, var(--foreground) 5%, var(--background));
+  --foreground-7: color-mix(in srgb, var(--foreground) 7%, var(--background));
+  --foreground-10: color-mix(in srgb, var(--foreground) 10%, var(--background));
+  --foreground-15: color-mix(in srgb, var(--foreground) 15%, var(--background));
+  --foreground-20: color-mix(in srgb, var(--foreground) 20%, var(--background));
+  --foreground-30: color-mix(in srgb, var(--foreground) 30%, var(--background));
+  --foreground-40: color-mix(in srgb, var(--foreground) 40%, var(--background));
+  --foreground-50: color-mix(in srgb, var(--foreground) 50%, var(--background));
+  --foreground-60: color-mix(in srgb, var(--foreground) 60%, var(--background));
+  --foreground-70: color-mix(in srgb, var(--foreground) 70%, var(--background));
+  --foreground-80: color-mix(in srgb, var(--foreground) 80%, var(--background));
+  --foreground-90: color-mix(in srgb, var(--foreground) 90%, var(--background));
+  --foreground-95: color-mix(in srgb, var(--foreground) 95%, var(--background));
+
+  --secondary: oklch(from var(--foreground) l c h / 0.05);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(from var(--foreground) l c h / 0.05);
+  --muted-foreground: var(--foreground-50);
+  --card: var(--background);
+  --card-foreground: var(--foreground);
+  --popover: var(--background);
+  --popover-foreground: var(--foreground);
+  --border: oklch(from var(--foreground) l c h / 0.05);
+  --input: oklch(from var(--foreground) l c h / 0.1);
+  --ring: oklch(from var(--foreground) l c h / 0.25);
+
+  --user-message-bubble: oklch(from var(--foreground) l c h / 0.05);
+  --accent-foreground: var(--background);
+  --destructive-foreground: var(--background);
+}

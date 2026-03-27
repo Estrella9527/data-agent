@@ -1,0 +1,100 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: zhongming-postgres
+    environment:
+      POSTGRES_USER: dataagent
+      POSTGRES_PASSWORD: dataagent123
+      POSTGRES_DB: dataagent
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dataagent -d dataagent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ChromaDB Vector Store
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: zhongming-chromadb
+    volumes:
+      - chromadb_data:/chroma/chroma
+    ports:
+      - "8002:8000"
+    environment:
+      - ANONYMIZED_TELEMETRY=false
+    restart: unless-stopped
+
+  # Python Agent Service (FastAPI)
+  agent-service:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: zhongming-api
+    environment:
+      - LLM_API_KEY=${LLM_API_KEY:-your-api-key-here}
+      - LLM_BASE_URL=${LLM_BASE_URL:-https://api.openai.com/v1}
+      - LLM_MODEL=${LLM_MODEL:-gpt-4o}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - DATABASE_URL=postgresql://dataagent:dataagent123@postgres:5432/dataagent
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+    ports:
+      - "8010:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      chromadb:
+        condition: service_started
+    restart: unless-stopped
+
+  # Next.js Frontend (Production)
+  web:
+    build: ./web
+    container_name: zhongming-web
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://dataagent:dataagent123@postgres:5432/dataagent
+      - AGENT_SERVICE_URL=http://agent-service:8000
+      - NEXT_PUBLIC_AGENT_URL=
+    depends_on:
+      postgres:
+        condition: service_healthy
+      agent-service:
+        condition: service_started
+    restart: unless-stopped
+
+  # Next.js Frontend (Development)
+  web-dev:
+    image: node:22-alpine
+    container_name: zhongming-web-dev
+    working_dir: /app
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    ports:
+      - "3001:3000"
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgresql://dataagent:dataagent123@postgres:5432/dataagent
+      - AGENT_SERVICE_URL=http://agent-service:8000
+      - NEXT_PUBLIC_AGENT_URL=
+    command: sh -c "npm install && npx prisma generate && npm run dev"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - dev
+
+volumes:
+  postgres_data:
+  chromadb_data:

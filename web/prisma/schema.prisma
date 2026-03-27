@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============== LLM 连接配置 ==============
+model LlmConnection {
+  id        String   @id @default(cuid())
+  provider  String   // "anthropic" | "openai_compatible" | "local"
+  name      String
+  apiKey    String?  @map("api_key")
+  baseUrl   String?  @map("base_url")
+  model     String
+  authType       String    @default("api_key") @map("auth_type")
+  refreshToken   String?   @map("refresh_token")
+  tokenExpiresAt DateTime? @map("token_expires_at")
+  isDefault Boolean  @default(false) @map("is_default")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("llm_connections")
+}
+
+// ============== 会话相关 ==============
+model Session {
+  id        String    @id @default(cuid())
+  title     String?
+  state     String    @default("IDLE")
+  mode      String?
+  pinnedAt  DateTime? @map("pinned_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  messages     Message[]
+  dataContexts SessionDataContext[]
+  plans        Plan[]
+
+  @@map("sessions")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  sessionId String   @map("session_id")
+  role      String
+  content   String   @db.Text
+  metadata  Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@map("messages")
+}
+
+// ============== 数据源相关 ==============
+model DataSource {
+  id          String    @id @default(cuid())
+  name        String
+  type        String
+  config      Json
+  description String?   @db.Text
+  profile     Json?
+  profiledAt  DateTime? @map("profiled_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  tables          DataTable[]
+  sessionContexts SessionDataContext[]
+
+  @@map("data_sources")
+}
+
+model DataTable {
+  id           String   @id @default(cuid())
+  dataSourceId String   @map("data_source_id")
+  name         String
+  description  String?  @db.Text
+  schema       Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  dataSource DataSource @relation(fields: [dataSourceId], references: [id], onDelete: Cascade)
+
+  @@unique([dataSourceId, name])
+  @@map("data_tables")
+}
+
+model SessionDataContext {
+  id           String @id @default(cuid())
+  sessionId    String @map("session_id")
+  dataSourceId String @map("data_source_id")
+
+  session    Session    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  dataSource DataSource @relation(fields: [dataSourceId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, dataSourceId])
+  @@map("session_data_contexts")
+}
+
+// ============== 计划与执行 ==============
+model Plan {
+  id        String   @id @default(cuid())
+  sessionId String   @map("session_id")
+  goals     Json
+  mode      String
+  version   Int      @default(1)
+  status    String   @default("draft")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  session    Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  executions Execution[]
+
+  @@map("plans")
+}
+
+model Execution {
+  id       String  @id @default(cuid())
+  planId   String  @map("plan_id")
+  goalId   String  @map("goal_id")
+  code     String? @db.Text
+  codeType String? @map("code_type")
+  result   Json?
+  status   String  @default("pending")
+  attempts Int     @default(0)
+  l2Result Json?   @map("l2_result")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  plan      Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@map("executions")
+}
