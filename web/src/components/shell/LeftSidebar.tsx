@@ -5,10 +5,10 @@ import {
   MessageSquare,
   Database,
   Settings,
-  Sparkles,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
+import Image from "next/image";
 import { SidebarItem } from "./SidebarItem";
 import { useSessionStore } from "@/stores/session-store";
 import { useLayoutStore } from "@/stores/layout-store";
@@ -35,8 +35,8 @@ export function LeftSidebar() {
     <div className="flex flex-col h-full px-2 py-3">
       {/* Logo / Brand */}
       <div className={cn("flex items-center gap-2.5 px-2 mb-4", collapsed && "justify-center px-0")}>
-        <div className="flex items-center justify-center w-8 h-8 rounded-inner bg-accent text-accent-foreground flex-shrink-0">
-          <Sparkles className="w-4 h-4" />
+        <div className="flex items-center justify-center w-8 h-8 flex-shrink-0">
+          <Image src="/logo.png" alt="重明" width={28} height={28} className="select-none" />
         </div>
         {!collapsed && (
           <div className="flex flex-col min-w-0">

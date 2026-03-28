@@ -17,7 +17,8 @@ import { useSessionStore } from "@/stores/session-store";
 import { useSourceStore } from "@/stores/source-store";
 import { groupMessagesByTurn } from "@/lib/turn-utils";
 // Turn type used via groupMessagesByTurn return
-import { Sparkles, Loader2, MessageSquareMore } from "lucide-react";
+import Image from "next/image";
+import { Loader2, MessageSquareMore, BarChart3, Users, TrendingUp, ShieldAlert, ArrowRight, Sparkles } from "lucide-react";
 
 export function SessionViewer() {
   const activeSessionId = useSessionStore((s) => s.activeSessionId);
@@ -358,45 +359,74 @@ function EmptyState() {
   const setActiveSession = useSessionStore((s) => s.setActiveSession);
 
   const examples = [
-    { icon: "📊", title: "销售分析", desc: "各产品销售趋势与渠道对比", prompt: "请分析各产品的销售趋势和渠道对比" },
-    { icon: "👥", title: "用户画像", desc: "用户分群与行为特征分析", prompt: "帮我分析用户画像和行为特征" },
-    { icon: "📈", title: "趋势预测", desc: "关键指标时序趋势分析", prompt: "分析关键指标的变化趋势" },
-    { icon: "🔍", title: "异常检测", desc: "数据质量与异常值排查", prompt: "帮我检测数据中的异常情况" },
+    { icon: BarChart3, title: "销售分析", desc: "各产品销售趋势与渠道对比", prompt: "请分析各产品的销售趋势和渠道对比" },
+    { icon: Users, title: "用户画像", desc: "用户分群与行为特征分析", prompt: "帮我分析用户画像和行为特征" },
+    { icon: TrendingUp, title: "趋势预测", desc: "关键指标时序趋势分析", prompt: "分析关键指标的变化趋势" },
+    { icon: ShieldAlert, title: "异常检测", desc: "数据质量与异常值排查", prompt: "帮我检测数据中的异常情况" },
   ];
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleExample = async (_prompt: string) => {
+  const handleExample = async (prompt: string) => {
     try {
       const session = await createSession();
       setActiveSession(session.id);
+      // TODO: auto-send prompt after session creation
+      void prompt;
     } catch {
       // ignore
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-6 text-foreground-40 px-6">
-      <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-foreground-3">
-        <Sparkles className="w-8 h-8 text-foreground-20" />
+    <div className="flex flex-col items-center justify-center h-full gap-8 px-6">
+      {/* Brand header */}
+      <div className="flex flex-col items-center gap-3">
+        <Image
+          src="/logo.png"
+          alt="重明"
+          width={56}
+          height={56}
+          className="select-none"
+          priority
+        />
+        <div className="text-center">
+          <h2 className="text-lg font-semibold text-foreground-70 tracking-tight">
+            重明 Data Agent
+          </h2>
+          <p className="text-[13px] text-foreground-30 mt-0.5">连接数据，发现洞察</p>
+        </div>
       </div>
-      <div className="text-center">
-        <p className="text-base font-semibold text-foreground-60">重明 Data Agent</p>
-        <p className="text-sm text-foreground-30 mt-1">上传数据，提出问题，获取洞察</p>
+
+      {/* Quick start cards — horizontal row */}
+      <div className="flex gap-2.5 w-full max-w-[640px]">
+        {examples.map((ex) => {
+          const Icon = ex.icon;
+          return (
+            <button
+              key={ex.title}
+              onClick={() => handleExample(ex.prompt)}
+              className="group flex-1 flex flex-col items-start gap-2.5 p-3.5 rounded-xl border border-foreground-6 bg-white/80 backdrop-blur-sm text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] hover:border-accent/25"
+            >
+              {/* Icon */}
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-foreground-3 transition-colors duration-200 group-hover:bg-accent/[0.08]">
+                <Icon className="w-4 h-4 text-foreground-30 transition-colors duration-200 group-hover:text-accent/70" />
+              </div>
+
+              {/* Text */}
+              <div className="space-y-0.5 min-w-0">
+                <div className="flex items-center gap-1">
+                  <span className="text-[13px] font-medium text-foreground-60 transition-colors duration-200 group-hover:text-foreground-80">
+                    {ex.title}
+                  </span>
+                  <ArrowRight className="w-3 h-3 shrink-0 text-foreground-15 opacity-0 -translate-x-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-accent/50" />
+                </div>
+                <p className="text-[11px] text-foreground-25 leading-relaxed">
+                  {ex.desc}
+                </p>
+              </div>
+            </button>
+          );
+        })}
       </div>
-      <div className="grid grid-cols-2 gap-2.5 w-full max-w-md">
-        {examples.map((ex) => (
-          <button
-            key={ex.title}
-            onClick={() => handleExample(ex.prompt)}
-            className="flex flex-col items-start gap-1 p-3 rounded-xl border border-foreground-8 bg-white hover:border-accent/30 hover:bg-accent/3 transition-all text-left group"
-          >
-            <span className="text-lg">{ex.icon}</span>
-            <span className="text-sm font-medium text-foreground-60 group-hover:text-accent transition-colors">{ex.title}</span>
-            <span className="text-xs text-foreground-30">{ex.desc}</span>
-          </button>
-        ))}
-      </div>
-      <p className="text-xs text-foreground-20">选择示例或新建会话，上传 CSV/Excel 开始分析</p>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles } from "lucide-react";
+import Image from "next/image";
 import {
   ProviderSelect,
   type ProviderChoice,
@@ -80,8 +80,8 @@ export default function WelcomePage() {
       <div className="w-[28rem] px-6">
         {/* Logo — Craft style: centered icon + title */}
         <div className="flex flex-col items-center mb-8">
-          <div className="flex items-center justify-center size-16 rounded-2xl bg-accent text-accent-foreground mb-4">
-            <Sparkles className="size-8" />
+          <div className="flex items-center justify-center size-16 rounded-2xl bg-accent/10 mb-4">
+            <Image src="/logo.png" alt="重明" width={40} height={40} className="select-none" priority />
           </div>
           <h1 className="text-xl font-semibold text-foreground">重明 Data Agent</h1>
           <p className="text-sm text-foreground-50 mt-1">
