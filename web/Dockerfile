@@ -1,4 +1,4 @@
-FROM node:20-slim AS base
+FROM node:20-bullseye-slim AS base
 
 # Install dependencies
 FROM base AS deps
