@@ -4,6 +4,7 @@ FROM node:20-alpine AS base
 FROM base AS deps
 WORKDIR /app
 COPY package.json ./
+RUN npm config set registry https://registry.npmmirror.com
 RUN npm install
 
 # Build
