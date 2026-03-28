@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:20-slim AS base
 
 # Install dependencies
 FROM base AS deps
@@ -26,11 +26,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Prisma engine needs OpenSSL 1.1
-RUN apk add --no-cache openssl1.1-compat
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs
+RUN useradd --system --uid 1001 --gid nodejs nextjs
 
 # Copy standalone output
 COPY --from=builder /app/.next/standalone ./
